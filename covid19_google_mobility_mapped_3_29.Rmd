@@ -36,7 +36,8 @@ theme_map <- function(...) {
     axis.ticks = element_blank(),
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
-    panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+    # panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+    panel.grid.major = element_blank(),    
     panel.grid.minor = element_blank(),
     panel.border = element_blank(),
     ...
@@ -97,13 +98,14 @@ ldf$Type<- recode(ldf$Type,
 
 # Maps
 
-## 1. Reduced density in these categories: 
+## 1. Reduced density compared to Jan3-Feb6 in these places: 
 
 * Retail & recreation
 * Grocery & pharmacy
 * Transit stations
 * Workplaces
 
+### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Retail/Grocery/Tranist/Workplaces
 ```{r reduced_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(!is.element(Type, c("Parks", "Residential"))) %>%
@@ -112,8 +114,8 @@ lp <- ldf %>%
     coord_fixed(1.3) +
     scale_fill_gradient(low = "navyblue", high = "white", lim=c(-.80,0),
                          labels = scales::percent) +
-    facet_wrap(~Type) + 
-    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    labs(fill = "% change in \nvisits") +
+    facet_wrap(~Type) +
     theme_map()
 
 ggsave(filename = "./figs/reduced_map.png", lp) # for README
@@ -123,10 +125,11 @@ lpy <- ggplotly(lp)
 lpy
 ```
 
-## 2. Increased in density in Residential category
+## 2. Increased in density in Residential areas
 
 * All states showed increased density in residential compared to Jan3-Feb6.
 
+### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Residential areas
 ```{r increased_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(is.element(Type, c("Residential"))) %>%
@@ -136,7 +139,7 @@ lp <- ldf %>%
     scale_fill_gradient(low = "white",high = "firebrick", lim=c(0,.25),
                          labels = scales::percent) +
     facet_wrap(~Type) + 
-    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    labs(fill = "% change in \nvisits") +
     theme_map() 
 
 ggsave(filename = "./figs/increased_map.png", lp) # for README
@@ -151,7 +154,7 @@ lpy
 * States such as Kansas and North Dakota showed huge increases in visits to Parks compared to the median baseline (Jan 3-Feb 6). 
 * Other states such as California and Florida showed decreases. 
 
-
+### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Parks
 ```{r mixed_map, dev='svg',message=F}
 lp <- ldf %>% 
   filter(is.element(Type, c("Parks"))) %>%
@@ -161,7 +164,7 @@ lp <- ldf %>%
     scale_fill_gradient2(low = "navyblue", mid="white",high = "firebrick", lim=c(-.80,.80),
                          labels = scales::percent) +
     facet_wrap(~Type) + 
-    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    labs(fill = "% change in \nvisits") +
     theme_map()
 
 
