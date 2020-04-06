@@ -10,7 +10,6 @@ states <- map_data("state")
 theme_map <- function(...) {
   theme_minimal() +
   theme(
-    # text = element_text(family = "Ubuntu Regular", color = "#22211d"),
     axis.line = element_blank(),
     axis.text.x = element_blank(),
     axis.text.y = element_blank(),
@@ -19,9 +18,6 @@ theme_map <- function(...) {
     axis.title.y = element_blank(),
     panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
     panel.grid.minor = element_blank(),
-    # plot.background = element_rect(fill = "#f5f5f2", color = NA), 
-    # panel.background = element_rect(fill = "#f5f5f2", color = NA), 
-    # legend.background = element_rect(fill = "#f5f5f2", color = NA),
     panel.border = element_blank(),
     ...
   )
@@ -79,7 +75,7 @@ ldf$Type<- recode(ldf$Type,
          residence="Residential")
 ```
 
-## Reduced mobility in these categories:
+## Reduced density in these categories:
 
 ``` r
 ldf %>% 
@@ -91,20 +87,33 @@ ldf %>%
                          labels = scales::percent) +
     facet_wrap(~Type) + 
     ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
-    theme_map() # +
+    theme_map()
 ```
 
 ![](covid19_google_mobility_mapped_3_29_files/figure-gfm/reduce_map-1.png)<!-- -->
 
-``` r
-#     theme(legend.position = "right)
-```
-
-## Mixed increase/decrease in mobility in these categories:
+## Increased in density in these categories:
 
 ``` r
 ldf %>% 
-  filter(is.element(Type, c("Parks", "Residential"))) %>%
+  filter(is.element(Type, c("Residential"))) %>%
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "white") + 
+    coord_fixed(1.3) +
+    scale_fill_gradient(low = "white",high = "firebrick", lim=c(0,.25),
+                         labels = scales::percent) +
+    facet_wrap(~Type) + 
+    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    theme_map() 
+```
+
+![](covid19_google_mobility_mapped_3_29_files/figure-gfm/increasemap-1.png)<!-- -->
+
+## Mixed increase/decrease in density in these categories:
+
+``` r
+ldf %>% 
+  filter(is.element(Type, c("Parks"))) %>%
   ggplot() + 
     geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "white") + 
     coord_fixed(1.3) +
@@ -112,11 +121,7 @@ ldf %>%
                          labels = scales::percent) +
     facet_wrap(~Type) + 
     ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
-    theme_map() # +
+    theme_map()
 ```
 
 ![](covid19_google_mobility_mapped_3_29_files/figure-gfm/mixmap-1.png)<!-- -->
-
-``` r
-#     theme(legend.position = "right)
-```

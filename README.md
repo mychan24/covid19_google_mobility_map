@@ -11,9 +11,17 @@ Plotting percentage change for each state. Separating the categories that only s
 ## General reduction in density: Retail/Grocery/Transit/Workplaces
 ![Reduction in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/reduce_map-1.png)
 
-## Mixed change in density: Parks/Residential
+## General increase in density: Residential
 
 * People are staying home more
+
+![Mixed increase/decrease in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/increasemap-1.png)
+
+
+## Mixed change in density: Parks
+
 * Huge surges in people going to parks in certain states. 
 
 ![Mixed increase/decrease in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/mixmap-1.png)
+
+
