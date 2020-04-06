@@ -2,10 +2,10 @@
 title: "State Mobility Map"
 output: 
   
-  github_document: default
-    
   html_document:
     code_folding: hide
+  github_document: default
+    
 ---
 
 ```{r setup, include=FALSE}
@@ -95,7 +95,7 @@ ldf$Type<- recode(ldf$Type,
 ```
 
 ## Reduced density in these categories: 
-```{r reduce_map}
+```{r reduce_map, dev='svg'}
 ldf %>% 
   filter(!is.element(Type, c("Parks", "Residential"))) %>%
   ggplot() + 
@@ -112,7 +112,7 @@ ldf %>%
 # Maps
 
 ## Increased in density in these categories: 
-```{r increasemap}
+```{r increasemap, dev='svg'}
 ldf %>% 
   filter(is.element(Type, c("Residential"))) %>%
   ggplot() + 
@@ -128,7 +128,7 @@ ldf %>%
 
 ## Mixed increase/decrease in density in these categories: 
 
-```{r mixmap}
+```{r mixmap, dev='svg'}
 ldf %>% 
   filter(is.element(Type, c("Parks"))) %>%
   ggplot() + 
