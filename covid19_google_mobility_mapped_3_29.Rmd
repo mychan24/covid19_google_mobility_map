@@ -1,5 +1,5 @@
 ---
-title: "State Community Mobility Map"
+title: "COVID-19 State Community Mobility Map"
 output: 
   html_document:
     code_folding: hide
@@ -18,12 +18,18 @@ library(plotly)
 
 ```
 
-
 ## Map and data setup
+Data table of percent change visits extracted from [Google Community Mobility Report](https://www.google.com/covid19/mobility/)
 
-Loading map from `library(maps)` for drawing the maps.
+*Expand code to see data and map setup*
+```{r data}
+# ===  Loading data from "maps" and community mobility data report === #
 
-```{r loadmap}
+# * Loading map from `library(maps)` for drawing the maps.
+# * Load state's community mobility data from google's PDFs (extracted with `scripts/getdata.R`).
+#   + Note: There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
+  
+# load maps
 usa <- map_data("usa")
 states <- map_data("state")
 
@@ -43,30 +49,23 @@ theme_map <- function(...) {
     ...
   )
 }
-```
 
-Load state's community mobility data from google's PDFs (extracted with `scripts/getdata.R`).
-
-* Note: There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
-
-```{r loaddata}
+# Load data
 odf <- read.csv("./data/state_mobility_google_map_3_29.csv")
 
-df <- odf %>% filter(!is.element(odf$states, c("Alaska", "Hawaii"))) # take out alaska & hawaii just for mapping # also we don't have DC
+# take out alaska & hawaii just for mapping # also we don't have DC
+df <- odf %>% filter(!is.element(odf$states, c("Alaska", "Hawaii"))) 
 
+# Rename states to in community mobility data to match map
 df$states <- tolower(df$states)
 df$states <- gsub("_", " ", df$states)
 
-# check all states are present
-# sum(is.element(df$states, unique(states$region)))/48
+# ===  Wrangled data to form data frame for plotting === #
+# * Merge data from community mobility report to state's lat/long data frame
+# * Reshape data from wide to long format for plotting
+# * Rename/recode variables
 
-```
 
-* Merge data from community mobility report to state's lat/long data frame
-* Reshape data from wide to long format for plotting
-* Rename/recode variables
-
-```{r wrangle_data}
 ns <- data.frame(states, retail=NA, grocery=NA, parks=NA, transit=NA, workplace=NA, residence=NA)
 
 for(i in 1:nrow(ns)){
@@ -100,7 +99,7 @@ ldf$Type<- recode(ldf$Type,
 
 **The colors in the map indicates % change in visits to  different categories of places (e.g., grocery, parks), comparing Mar.29 to a baseline value = median of Jan 3-Feb 6**
 
-## 1. Reduced density compared to Jan3-Feb6 in these places: 
+## 1. Reduced visits (community mobility) compared to Jan3-Feb6 in these places: 
 
 * Retail & recreation
 * Grocery & pharmacy
@@ -127,7 +126,7 @@ lpy <- ggplotly(lp)
 lpy
 ```
 
-## 2. Increased in density in Residential areas
+## 2. Increased visits (community mobility) in Residential areas
 
 * All states showed increased density in residential compared to Jan3-Feb6.
 
@@ -154,7 +153,7 @@ lpy <- ggplotly(lp)
 lpy
 ```
 
-## 3. Mixed increase/decrease in density in Parks 
+## 3. Mixed increase/decrease in vistis in Parks 
 
 * States such as Kansas and North Dakota showed huge increases in visits to Parks compared to the median baseline (Jan 3-Feb 6). 
 * Other states such as California and Florida showed decreases. 
@@ -179,3 +178,15 @@ lpy <- ggplotly(lp)
 
 lpy
 ```
+
+
+
+# Data
+
+* Data table of actual values plotted. These values were pulled from https://www.google.com/covid19/mobility/ based on data from 3/29/2020.
+
+```{r datatable}
+df %>%
+  DT::datatable( caption = "Google Community Mobility Data - 3/29/2020") 
+```
+
