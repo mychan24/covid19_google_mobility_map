@@ -1,7 +1,6 @@
 ---
-title: "State Mobility Map"
+title: "State Community Mobility Map"
 output: 
-  
   html_document:
     code_folding: hide
   github_document: default
@@ -20,11 +19,11 @@ library(plotly)
 ```
 
 
-## Map setup
+## Map and data setup
 
 Loading map from `library(maps)` for drawing the maps.
 
-```{r}
+```{r loadmap}
 usa <- map_data("usa")
 states <- map_data("state")
 
@@ -45,13 +44,11 @@ theme_map <- function(...) {
 }
 ```
 
+Load state's community mobility data from google's PDFs (extracted with `scripts/getdata.R`).
 
-## Load data
-Load state's mobility data from google's PDFs (extracted with `scripts/getdata.R`).
+* Note: There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
 
-There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
-
-```{r}
+```{r loaddata}
 odf <- read.csv("./data/state_mobility_google_map_3_29.csv")
 
 df <- odf %>% filter(!is.element(odf$states, c("Alaska", "Hawaii"))) # take out alaska & hawaii just for mapping # also we don't have DC
@@ -64,8 +61,11 @@ df$states <- gsub("_", " ", df$states)
 
 ```
 
-Merge data
-```{r}
+* Merge data from community mobility report to state's lat/long data frame
+* Reshape data from wide to long format for plotting
+* Rename/recode variables
+
+```{r wrangle_data}
 ns <- data.frame(states, retail=NA, grocery=NA, parks=NA, transit=NA, workplace=NA, residence=NA)
 
 for(i in 1:nrow(ns)){
@@ -95,7 +95,15 @@ ldf$Type<- recode(ldf$Type,
          residence="Residential")
 ```
 
-## Reduced density in these categories: 
+# Maps
+
+## 1. Reduced density in these categories: 
+
+* Retail & recreation
+* Grocery & pharmacy
+* Transit stations
+* Workplaces
+
 ```{r reduced_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(!is.element(Type, c("Parks", "Residential"))) %>%
@@ -115,9 +123,10 @@ lpy <- ggplotly(lp)
 lpy
 ```
 
-# Maps
+## 2. Increased in density in Residential category
 
-## Increased in density in these categories: 
+* All states showed increased density in residential compared to Jan3-Feb6.
+
 ```{r increased_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(is.element(Type, c("Residential"))) %>%
@@ -137,7 +146,11 @@ lpy <- ggplotly(lp)
 lpy
 ```
 
-## Mixed increase/decrease in density in these categories: 
+## 3. Mixed increase/decrease in density in Parks 
+
+* States such as Kansas and North Dakota showed huge increases in visits to Parks compared to the median baseline (Jan 3-Feb 6). 
+* Other states such as California and Florida showed decreases. 
+
 
 ```{r mixed_map, dev='svg',message=F}
 lp <- ldf %>% 
