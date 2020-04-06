@@ -1,0 +1,122 @@
+State Mobility Map
+================
+
+Map setup
+
+``` r
+usa <- map_data("usa")
+states <- map_data("state")
+
+theme_map <- function(...) {
+  theme_minimal() +
+  theme(
+    # text = element_text(family = "Ubuntu Regular", color = "#22211d"),
+    axis.line = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+    panel.grid.minor = element_blank(),
+    # plot.background = element_rect(fill = "#f5f5f2", color = NA), 
+    # panel.background = element_rect(fill = "#f5f5f2", color = NA), 
+    # legend.background = element_rect(fill = "#f5f5f2", color = NA),
+    panel.border = element_blank(),
+    ...
+  )
+}
+```
+
+Load data
+
+``` r
+odf <- read.csv("./data/state_mobility_google_map_3_29.csv")
+
+df <- odf %>% filter(!is.element(odf$states, c("Alaska", "Hawaii"))) # take out alaska & hawaii just for mapping # also we don't have DC
+
+df$states <- tolower(df$states)
+df$states <- gsub("_", " ", df$states)
+
+# check all states are present
+sum(is.element(df$states, unique(states$region)))/48
+```
+
+    ## [1] 1
+
+Merge data
+
+``` r
+ns <- data.frame(states, retail=NA, grocery=NA, parks=NA, transit=NA, workplace=NA, residence=NA)
+
+for(i in 1:nrow(ns)){
+  if(ns$region[i]=="district of columbia"){
+      ns[i,7:ncol(ns)] <- NA
+  }else{
+      ns[i,7:ncol(ns)] <- as.character(unlist(df[df$states==ns$region[i],2:ncol(df)]))
+  }
+}
+
+for(j in 7:ncol(ns)){
+  ns[,j] <- as.numeric(sub("%", "",ns[,j]))
+}
+
+ns[,7:ncol(ns)] <- ns[,7:ncol(ns)] *.01
+```
+
+mutate to long form
+
+``` r
+ldf <- ns %>% 
+  gather(data = ., key = "Type", value = "Percent_Change", retail:residence, factor_key = T)
+
+ldf$Type<- recode(ldf$Type,
+         retail="Retail & recreation", 
+         grocery="Grocery & pharmacy",
+         parks="Parks", 
+         transit="Transit stations", 
+         workplace="Workplaces", 
+         residence="Residential")
+```
+
+## Reduced mobility in these categories:
+
+``` r
+ldf %>% 
+  filter(!is.element(Type, c("Parks", "Residential"))) %>%
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "white") + 
+    coord_fixed(1.3) +
+    scale_fill_gradient(low = "red", high = "white", lim=c(-.80,0),
+                         labels = scales::percent) +
+    facet_wrap(~Type) + 
+    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    theme_map() # +
+```
+
+![](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+#     theme(legend.position = "right)
+```
+
+## Mixed increase/decrease in mobility in these categories:
+
+``` r
+ldf %>% 
+  filter(is.element(Type, c("Parks", "Residential"))) %>%
+  ggplot() + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "white") + 
+    coord_fixed(1.3) +
+    scale_fill_gradient2(low = "red", mid="white",high = "blue", lim=c(-.80,.80),
+                         labels = scales::percent) +
+    facet_wrap(~Type) + 
+    ggtitle("Mobility changes from March 29 compared to Median of Jan 3-Feb 6") +
+    theme_map() # +
+```
+
+![](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+#     theme(legend.position = "right)
+```
