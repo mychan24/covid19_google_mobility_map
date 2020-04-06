@@ -9,11 +9,11 @@ See `.Rmd` file for code that generated the maps.
 Plotting percentage change for each state. Separating the categories that only show reduction to show finer resolution of change in color-bar.
 
 ## General reduction in density: Retail/Grocery/Transit/Workplaces
-![Reduction in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-5-1.png)
+![Reduction in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/reduce_map-1.png)
 
 ## Mixed change in density: Parks/Residential
 
 * People are staying home more
 * Huge surges in people going to parks in certain states. 
 
-![Mixed increase/decrease in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-6-1.png)
+![Mixed increase/decrease in mobility in these categoires](covid19_google_mobility_mapped_3_29_files/figure-gfm/mixmap-1.png)

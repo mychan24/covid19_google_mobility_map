@@ -90,7 +90,7 @@ ldf$Type<- recode(ldf$Type,
 ```
 
 ## Reduced mobility in these categories: 
-```{r}
+```{r reduce_map}
 ldf %>% 
   filter(!is.element(Type, c("Parks", "Residential"))) %>%
   ggplot() + 
@@ -106,7 +106,7 @@ ldf %>%
 ```
 
 ## Mixed increase/decrease in mobility in these categories: 
-```{r}
+```{r mixmap}
 ldf %>% 
   filter(is.element(Type, c("Parks", "Residential"))) %>%
   ggplot() + 

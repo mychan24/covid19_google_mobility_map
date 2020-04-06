@@ -94,7 +94,7 @@ ldf %>%
     theme_map() # +
 ```
 
-![](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](covid19_google_mobility_mapped_3_29_files/figure-gfm/reduce_map-1.png)<!-- -->
 
 ``` r
 #     theme(legend.position = "right)
@@ -115,7 +115,7 @@ ldf %>%
     theme_map() # +
 ```
 
-![](covid19_google_mobility_mapped_3_29_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](covid19_google_mobility_mapped_3_29_files/figure-gfm/mixmap-1.png)<!-- -->
 
 ``` r
 #     theme(legend.position = "right)
