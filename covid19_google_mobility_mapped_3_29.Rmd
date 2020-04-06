@@ -1,10 +1,10 @@
 ---
 title: "COVID-19 State Community Mobility Map"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
 output: 
   html_document:
     code_folding: hide
   github_document: default
-    
 ---
 
 ```{r setup, include=FALSE}
@@ -19,7 +19,7 @@ library(plotly)
 ```
 
 ## Map and data setup
-Data table of percent change visits extracted from [Google Community Mobility Report](https://www.google.com/covid19/mobility/)
+Data table of percent change visits extracted from [Google Community Mobility Report](https://www.google.com/covid19/mobility/), based on data from **3/29/2020**.
 
 *Expand code to see data and map setup*
 ```{r data}
