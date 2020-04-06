@@ -1,6 +1,8 @@
 # covid19_google_mobility_map
 Percent change from Jan-Feb median in mobility 
 
+[Link to github page website with maps that has hover-over data (state name and percentage)](https://mychan24.github.io/covid19_google_mobility_map/)
+
 # Data
 Data were scraped from [google.com/covid19/mobility/](https://www.google.com/covid19/mobility/), roughtly extracted from the PDFs of each state.
 See `.Rmd` file for code that generated the maps.
