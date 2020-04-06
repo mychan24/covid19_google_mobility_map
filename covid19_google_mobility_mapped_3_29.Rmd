@@ -1,6 +1,11 @@
 ---
 title: "State Mobility Map"
-output: github_document
+output: 
+  
+  github_document: default
+    
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +19,10 @@ library(ggmap)
 ```
 
 
-Map setup
+## Map setup
+
+Loading map from `library(maps)` for drawing the maps.
+
 ```{r}
 usa <- map_data("usa")
 states <- map_data("state")
@@ -37,7 +45,11 @@ theme_map <- function(...) {
 ```
 
 
-Load data
+## Load data
+Load state's mobility data from google's PDFs (extracted with `scripts/getdata.R`).
+
+There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
+
 ```{r}
 odf <- read.csv("./data/state_mobility_google_map_3_29.csv")
 
@@ -47,12 +59,12 @@ df$states <- tolower(df$states)
 df$states <- gsub("_", " ", df$states)
 
 # check all states are present
-sum(is.element(df$states, unique(states$region)))/48
+# sum(is.element(df$states, unique(states$region)))/48
 
 ```
+
 Merge data
 ```{r}
-
 ns <- data.frame(states, retail=NA, grocery=NA, parks=NA, transit=NA, workplace=NA, residence=NA)
 
 for(i in 1:nrow(ns)){
@@ -69,10 +81,7 @@ for(j in 7:ncol(ns)){
 
 ns[,7:ncol(ns)] <- ns[,7:ncol(ns)] *.01
 
-```
-
-mutate to long form
-```{r}
+#  Gather to long form
 ldf <- ns %>% 
   gather(data = ., key = "Type", value = "Percent_Change", retail:residence, factor_key = T)
 
@@ -99,6 +108,8 @@ ldf %>%
     theme_map()
 
 ```
+
+# Maps
 
 ## Increased in density in these categories: 
 ```{r increasemap}

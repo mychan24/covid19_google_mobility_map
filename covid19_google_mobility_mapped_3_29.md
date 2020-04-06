@@ -1,7 +1,9 @@
 State Mobility Map
 ================
 
-Map setup
+## Map setup
+
+Loading map from `library(maps)` for drawing the maps.
 
 ``` r
 usa <- map_data("usa")
@@ -24,7 +26,13 @@ theme_map <- function(...) {
 }
 ```
 
-Load data
+## Load data
+
+Load state’s mobility data from google’s PDFs (extracted with
+`scripts/getdata.R`).
+
+There were data available for Alaska and Hawaii, but since it won’t be
+mapped, they were removed here.
 
 ``` r
 odf <- read.csv("./data/state_mobility_google_map_3_29.csv")
@@ -35,10 +43,8 @@ df$states <- tolower(df$states)
 df$states <- gsub("_", " ", df$states)
 
 # check all states are present
-sum(is.element(df$states, unique(states$region)))/48
+# sum(is.element(df$states, unique(states$region)))/48
 ```
-
-    ## [1] 1
 
 Merge data
 
@@ -58,11 +64,8 @@ for(j in 7:ncol(ns)){
 }
 
 ns[,7:ncol(ns)] <- ns[,7:ncol(ns)] *.01
-```
 
-mutate to long form
-
-``` r
+#  Gather to long form
 ldf <- ns %>% 
   gather(data = ., key = "Type", value = "Percent_Change", retail:residence, factor_key = T)
 
@@ -91,6 +94,8 @@ ldf %>%
 ```
 
 ![](covid19_google_mobility_mapped_3_29_files/figure-gfm/reduce_map-1.png)<!-- -->
+
+# Maps
 
 ## Increased in density in these categories:
 
