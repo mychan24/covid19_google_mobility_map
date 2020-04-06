@@ -98,6 +98,8 @@ ldf$Type<- recode(ldf$Type,
 
 # Maps
 
+**The colors in the map indicates % change in visits to  different categories of places (e.g., grocery, parks), comparing Mar.29 to a baseline value = median of Jan 3-Feb 6**
+
 ## 1. Reduced density compared to Jan3-Feb6 in these places: 
 
 * Retail & recreation
@@ -105,7 +107,7 @@ ldf$Type<- recode(ldf$Type,
 * Transit stations
 * Workplaces
 
-### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Retail/Grocery/Tranist/Workplaces
+### % change in visits to Retail/Grocery/Transit/Workplaces
 ```{r reduced_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(!is.element(Type, c("Parks", "Residential"))) %>%
@@ -129,7 +131,10 @@ lpy
 
 * All states showed increased density in residential compared to Jan3-Feb6.
 
-### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Residential areas
+### % change in visits to Residential areas
+
+* 'visits' is probably a weird term here. 
+
 ```{r increased_map, dev='svg', message=F}
 lp <- ldf %>% 
   filter(is.element(Type, c("Residential"))) %>%
@@ -154,7 +159,7 @@ lpy
 * States such as Kansas and North Dakota showed huge increases in visits to Parks compared to the median baseline (Jan 3-Feb 6). 
 * Other states such as California and Florida showed decreases. 
 
-### % change from Mar.29  to baseline (median of Jan 3-Feb) in visits to Parks
+### % change in visits to Parks
 ```{r mixed_map, dev='svg',message=F}
 lp <- ldf %>% 
   filter(is.element(Type, c("Parks"))) %>%
