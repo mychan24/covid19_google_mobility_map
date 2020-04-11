@@ -1,0 +1,248 @@
+---
+title: "COVID-19 State Community Mobility Map"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: 
+  html_document:
+    code_folding: hide
+  github_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(maps)
+library(mapdata)
+library(ggmap)
+library(plotly)
+library(patchwork)
+```
+
+## Map and data setup
+Data table of percent change visits extracted from [Google Community Mobility Report](https://www.google.com/covid19/mobility/), based on data from **04/05/2020**.
+
+*Expand code to see data and map setup*
+```{r data}
+# ===  Loading data from "maps" and community mobility data report === #
+
+# * Loading map from `library(maps)` for drawing the maps.
+# * Load state's community mobility data from google's PDFs (extracted with `scripts/getdata.R`).
+#   + Note: There were data available for Alaska and Hawaii, but since it won't be mapped, they were removed here.
+  
+# 1. load maps
+usa <- map_data("usa")
+states <- map_data("state")
+
+theme_map <- function(...) {
+  theme_minimal() +
+  theme(
+    axis.line = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    # panel.grid.major = element_line(color = "#ebebe5", size = 0.2),
+    panel.grid.major = element_blank(),    
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    ...
+  )
+}
+
+# 2. Load dataframe(s) into a list
+file_list <- paste0("./data/", dir("./data")[grep(".csv", dir("./data"))])
+
+commlist <- list()
+for(i in 1:length(file_list)){
+  commlist[[i]] <- read.csv(file_list[i])
+  
+  # take out alaska & hawaii just for mapping # also we don't have DC
+  commlist[[i]] <- commlist[[i]] %>% filter(!is.element(commlist[[i]]$states, c("Alaska", "Hawaii"))) 
+  
+  # Rename states to in community mobility data to match map
+  commlist[[i]]$states <- tolower(commlist[[i]]$states)
+  commlist[[i]]$states <- gsub("_", " ", commlist[[i]]$states)
+  
+  fname <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(file_list[i])) %>%  # Get date of first data file
+                        strsplit(x = ., "_")
+  names(commlist)[i] <- format(as.Date(fname[[1]][5], format = "%Y%m%d"), "%Y-%m-%d")
+}
+
+# bdf <- read.csv(file_list[1]) # load first data file
+# 
+# fname <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(file_list[1])) %>%  # Get date of first data file
+#   strsplit(x = ., "_")
+# bdf$date <- format(as.Date(fname[[1]][5], format = "%Y%m%d"), "%Y-%m-%d")
+# 
+# 
+# for(i in 2:length(file_list)){ # combine data from multiple dates into one dataframe
+#   odf <- read.csv(file_list[i])
+#   fname <- sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(file_list[i])) %>% 
+#     strsplit(x = ., "_")
+#   
+#   odf$date <- format(as.Date(fname[[1]][5], format = "%Y%m%d"), "%Y-%m-%d")
+#   
+#   bdf <- rbind(bdf, odf)
+# }
+
+
+# ===  Wrangled data to form data frame for plotting === #
+# * Merge data from community mobility report to state's lat/long data frame
+# * Reshape data from wide to long format for plotting
+# * Rename/recode variables
+
+ndata <- length(commlist)
+
+datlist <- list()
+
+for(nd in 1:ndata){
+  ns <- data.frame(states, retail=NA, grocery=NA, parks=NA, transit=NA, workplace=NA, residence=NA)
+  
+  
+  for(i in 1:nrow(ns)){
+    if(ns$region[i]=="district of columbia"){
+        ns[i,7:ncol(ns)] <- NA
+    }else{
+        ns[i,7:ncol(ns)] <- as.character(unlist(commlist[[nd]][commlist[[nd]]$states==ns$region[i],2:ncol(commlist[[nd]])]))
+    }
+  }
+  
+  for(j in 7:ncol(ns)){ 
+    ns[,j] <- as.numeric(sub("%", "",ns[,j])) # remove percentage sign
+  }
+
+  ns[,7:ncol(ns)] <- ns[,7:ncol(ns)] *.01 # convert whole number to *.01 for plotting as %
+  
+  ns$date <- names(commlist)[nd]
+  
+  #  Gather to long form
+  ldf <- ns %>% 
+    gather(data = ., key = "Type", value = "Percent_Change", retail:residence, factor_key = T)
+  
+  ldf$Type<- recode(ldf$Type,
+           retail="Retail & recreation", 
+           grocery="Grocery & pharmacy",
+           parks="Parks", 
+           transit="Transit stations", 
+           workplace="Workplaces", 
+           residence="Residential")
+  
+  datlist[[nd]] <- ldf
+  names(datlist)[nd] <-  names(commlist)[nd]
+}
+
+```
+
+# Maps
+
+**The colors in the map indicates % change in visits to  different categories of places (e.g., grocery, parks), comparing Mar.29 to a baseline value = median of Jan 3-Feb 6**
+
+## 1. Reduced visits (community mobility) compared to Jan3-Feb6 in these places: 
+
+* Retail & recreation
+* Grocery & pharmacy
+* Transit stations
+* Workplaces
+
+### % change in visits to Retail/Grocery/Transit/Workplaces
+```{r reduced_map, dev='svg', message=F}
+maplist <- list()
+
+for(nd in 1:ndata){
+  
+ lp <- datlist[[nd]] %>% 
+    filter(!is.element(Type, c("Parks", "Residential"))) %>%
+    ggplot(aes(text = region)) + 
+      geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "grey80") + 
+      coord_fixed(1.3) +
+      scale_fill_gradient2(low = "navyblue", mid = "white", high="firebrick", midpoint = 0, lim=c(-.8,.1),
+                           labels = scales::percent) +
+      labs(fill = "% change in \nvisits") +
+      facet_wrap(~Type, nrow =1) +
+      # annotate(unique(datlist[[nd]]$date)) +
+      theme_map()
+ 
+  maplist[[nd]] <- ggplotly(lp) # make text appear on click/hover
+}
+
+
+# ggsave(filename = "./figs/reduced_map.png", lp) # for README
+
+# lpy <- ggplotly(lp)
+# 
+# lpy
+
+subplot(maplist, nrows = ndata, titleX = F, titleY = F)
+
+
+```
+
+## 2. Increased visits (community mobility) in Residential areas
+
+* All states showed increased density in residential compared to Jan3-Feb6.
+
+### % change in visits to Residential areas
+
+* 'visits' is probably a weird term here. 
+
+```{r increased_map, dev='svg', message=F}
+lp <- ldf %>% 
+  filter(is.element(Type, c("Residential"))) %>%
+  ggplot(aes(text = region)) + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "grey80") + 
+    coord_fixed(1.3) +
+    scale_fill_gradient(low = "white",high = "firebrick", lim=c(0,.25),
+                         labels = scales::percent) +
+    # facet_wrap(~Type) + 
+    labs(fill = "% change in \nvisits") +
+    ggtitle("\n\nResidential") +
+    theme_map() +
+    theme(plot.title = element_text(hjust = 0.5))
+
+
+ggsave(filename = "./figs/increased_map.png", lp) # for README
+
+lpy <- ggplotly(lp)
+
+lpy
+```
+
+## 3. Mixed increase/decrease in vistis in Parks 
+
+* States such as Kansas and North Dakota showed huge increases in visits to Parks compared to the median baseline (Jan 3-Feb 6). 
+* Other states such as California and Florida showed decreases. 
+
+### % change in visits to Parks
+```{r mixed_map, dev='svg',message=F}
+lp <- ldf %>% 
+  filter(is.element(Type, c("Parks"))) %>%
+  ggplot(aes(text = region)) + 
+    geom_polygon(aes(x = long, y = lat, group = group, fill=Percent_Change), color = "grey80") + 
+    coord_fixed(1.3) +
+    scale_fill_gradient2(low = "navyblue", mid="white",high = "firebrick", lim=c(-.8,1.),
+                         labels = scales::percent) +
+    # facet_wrap(~Type) + 
+    labs(fill = "% change in \nvisits") +
+    ggtitle("\n\nParks") +
+    theme_map() +
+    theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(filename = "./figs/mixed_map.png", lp)
+
+lpy <- ggplotly(lp)
+
+lpy
+```
+
+
+
+# Data
+
+* Data table of actual values plotted. These values were pulled from https://www.google.com/covid19/mobility/ based on data from 3/29/2020.
+
+```{r datatable}
+df %>%
+  DT::datatable( caption = "Google Community Mobility Data - 3/29/2020") 
+```
+
