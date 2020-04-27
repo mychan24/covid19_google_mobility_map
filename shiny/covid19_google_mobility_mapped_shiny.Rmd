@@ -5,6 +5,8 @@ output:
   html_document:
     code_folding: hide
   github_document: default
+  
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +17,7 @@ library(maps)
 library(mapdata)
 library(ggmap)
 library(plotly)
-library(patchwork)
+library(shiny)
 ```
 
 ## Map and data setup
@@ -51,7 +53,7 @@ theme_map <- function(...) {
 }
 
 # 2. Load dataframe(s) into a list
-file_list <- paste0("./data/", dir("./data")[grep(".csv", dir("./data"))])
+file_list <- paste0("../data/", dir("../data")[grep(".csv", dir("../data"))])
 
 commlist <- list()
 for(i in 1:length(file_list)){
@@ -159,23 +161,16 @@ for(nd in 1:ndata){
       scale_fill_gradient2(low = "navyblue", mid = "white", high="firebrick", midpoint = 0, lim=c(-.8,.1),
                            labels = scales::percent) +
       labs(fill = "% change in \nvisits") +
-      facet_wrap(~Type, nrow =1) +
-      # annotate(unique(datlist[[nd]]$date)) +
+      facet_wrap(~Type, nrow = 2) +
+      ggtitle(unique(datlist[[nd]]$date)) +
       theme_map()
  
   maplist[[nd]] <- ggplotly(lp) # make text appear on click/hover
 }
 
+names(maplist) <- names(datlist)
 
-# ggsave(filename = "./figs/reduced_map.png", lp) # for README
-
-# lpy <- ggplotly(lp)
-# 
-# lpy
-
-subplot(maplist, nrows = ndata, titleX = F, titleY = F)
-
-
+source(shin)
 ```
 
 ## 2. Increased visits (community mobility) in Residential areas

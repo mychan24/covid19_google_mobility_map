@@ -1,0 +1,10 @@
+name: covid19_google_mobility_mapped_shiny
+title:
+username:
+account: mychan24
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2098621
+bundleId: 2998932
+url: https://mychan24.shinyapps.io/covid19_google_mobility_mapped_shiny/
+when: 1586576790.83726

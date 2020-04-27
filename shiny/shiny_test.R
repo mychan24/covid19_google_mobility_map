@@ -1,51 +1,33 @@
-# library(shiny)
+# Show plotly map based on dates being selected
 
+library(shiny)
 
-# Define UI for dataset viewer application
-
-# Define UI for dataset viewer application
-u <- shinyUI(pageWithSidebar(
+# UI
+ui <- fluidPage(
+  titlePanel("BC Liquor Store prices"),
   
-  # Application title
-  headerPanel("Reactivity"),
+  sidebarLayout(
+    sidebarPanel("Choose a Date (default=newest):",
+                 selectInput(inputId = "date", 
+                             choices = c("2020-03-29", "2020-04-05"), 
+                             selected = "2020-04-05",
+                             label = NULL)
+    ),
+    mainPanel(
+      plotlyOutput("coolplot"),
+      br(), br(),
+      tableOutput("results")
+    )
+    
+  ))
+
+# Server
+server <- function(input, output) {
   
-  # Sidebar with controls to provide a caption, select a dataset, and 
-  # specify the number of observations to view. Note that changes made
-  # to the caption in the textInput control are updated in the output
-  # area immediately as you type
-  sidebarPanel(
-    textInput("caption", "Caption:", "Data Summary"),
-    
-    selectInput("dataset", "Choose a Date:", 
-                choices = c("2020-03-29","2020-04-05"))
-    
-    # numericInput("obs", "Number of observations to view:", 10)
-  ),
-  
-  
-  # Show the caption, a summary of the dataset and an HTML table with
-  # the requested number of observations
-  mainPanel(
-    h3(textOutput("caption")), 
-    
-    verbatimTextOutput("summary"), 
-    
-    plotOutput("plot")
-  )
-))
-
-
-
-s <- shinyServer(function(input, output) 
-{
-
-  # dt <- reactive({
-  #   switch(names(input)
-  # })
-
-  output$plot <- renderPlot({
-    input$dataset
+  output$coolplot <- renderPlotly({
+    maplist[[input$date]] 
   })
-})
-shinyApp(u,s)
+}
 
+# run the app
+shinyApp(ui = ui, server = server)
