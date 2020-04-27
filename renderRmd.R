@@ -5,6 +5,11 @@
 #                   output_file = "index.html")
 
 ## Render 4/5/2020's data into index.html
-rmarkdown::render("./covid19_google_mobility_mapped_4_05.Rmd",
+# rmarkdown::render("./covid19_google_mobility_mapped_4_05.Rmd",
+#                   output_dir="./docs/",  
+#                   output_file = "index.html")
+
+## Render 4/11/2020's data into index.html
+rmarkdown::render("./covid19_google_mobility_mapped_4_11.Rmd",
                   output_dir="./docs/",  
                   output_file = "index.html")

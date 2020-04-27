@@ -1,7 +1,7 @@
 # COVID-19 Community Mobility Map (data from Google)
 
 # Data
-* Data were scraped from [google.com/covid19/mobility/](https://www.google.com/covid19/mobility/), roughtly extracted from the PDFs of each state. These are percent change in visits from **April 5** compared to the median value from Jan 3 - Feb 6.
+* Data were scraped from [google.com/covid19/mobility/](https://www.google.com/covid19/mobility/), roughtly extracted from the PDFs of each state. These are percent change in visits from **April 11** compared to the median value from Jan 3 - Feb 6.
 * See `.Rmd` file for code that generated the maps.
 * [Website](https://mychan24.github.io/covid19_google_mobility_map/) with maps that has hover-over data (state name and percentage)
 
@@ -21,7 +21,7 @@
 
 ## Mixed change in density: Parks
 
-* Huge surges in people going to parks in certain states. 
+* Huge surges in people going to parks in certain states.
 
 ![Mixed increase/decrease in mobility in these categoires](figs/mixed_map.png)
 
